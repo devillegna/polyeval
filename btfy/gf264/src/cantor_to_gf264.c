@@ -2,6 +2,10 @@
 #include "stdint.h"
 #include "cantor_to_gf264.h"
 
+uint64_t index_to_gf264( uint64_t fft_position_index ) {
+  return cantor_to_gf264( fft_position_index );
+}
+
 const uint64_t cantor_basis[64] __attribute__((aligned(32))) = {
  0x1, 0x19C9369F278ADC02, 0xA181E7D66F5FF794, 0x5DB84357CE785D08, 0xB973D466F5C9D0CA, 0x521AC889831A075E, 0x33CE8BEDDC8A656, 0xB5846C4E07B91010,
  0x4087B8CBB37A32EC, 0xD0D3888C0AE17C, 0xAFD5AC70237F2222, 0xE3F5AF99CC3AAAF8, 0x5A1DB3B16A0B58B8, 0x9947C54FE7EE248, 0xE8EAF0E0068F544, 0xA2A113500B4B4F5A,

@@ -27,7 +27,7 @@ uint64_t cantor_to_gf264( uint64_t gf_in_cantor )
   return r;
 }
 
-
+uint64_t index_to_gf264( uint64_t fft_position_index );
 
 #ifdef  __cplusplus
 }

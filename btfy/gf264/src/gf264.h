@@ -9,7 +9,7 @@
 /// X^64 + X^4 + X^3 + X + 1
 /// 0x1b
 static inline
-uint64_t gf264_mul( uint64_t a , uint64_t b )
+uint64_t _gf264_mul( uint64_t a , uint64_t b )
 {
   uint64_t r = a&(-(b&1));
   for(int i=1;i<64;i++) {
@@ -20,6 +20,8 @@ uint64_t gf264_mul( uint64_t a , uint64_t b )
   }
   return r;
 }
+
+uint64_t gf264_mul( uint64_t a , uint64_t b );
 
 
 #endif

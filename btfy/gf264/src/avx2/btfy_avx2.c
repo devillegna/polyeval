@@ -52,10 +52,16 @@ void i_butterfly_64_avx2( __m256i * poly , unsigned unit_256 , __m128i a ) /// u
 {
 	unsigned unit_2= unit_256/2;
 	for(unsigned i=0;i<unit_2;i++) {
+		__m256i poly_i = _mm256_loadu_si256( poly + i );
+		__m256i poly_unit2_i = _mm256_loadu_si256( poly + unit_2 + i );
 		_mm_prefetch( &poly[i+1] , _MM_HINT_T0 );
 		_mm_prefetch( &poly[unit_2+i+1] , _MM_HINT_T0 );
-		poly[unit_2+i] ^= poly[i];
-		poly[i] ^= _gf2ext64_mul_4x1_avx2( poly[unit_2+i] , a );
+
+		poly_unit2_i ^= poly_i;
+		poly_i ^= _gf2ext64_mul_4x1_avx2( poly_unit2_i , a );
+
+		_mm256_storeu_si256( poly+i , poly_i );
+		_mm256_storeu_si256( poly+unit_2+i , poly_unit2_i );
 	}
 }
 
@@ -134,8 +140,8 @@ void btfy_s1( __m256i* ptr , unsigned n_m256, uint64_t extra_a )
 		for(unsigned k=0;k<tab_size;k+=2) {
 			__m128i s1_a = _mm_load_si128( (__m128i*) &cantor_to_gf264_2x[k] )^s1_ea;
 
-			__m256i t0123 = _mm256_load_si256(ptr);
-			__m256i t4567 = _mm256_load_si256(ptr+1);
+			__m256i t0123 = _mm256_loadu_si256(ptr);
+			__m256i t4567 = _mm256_loadu_si256(ptr+1);
 
 			__m256i t0145 = _mm256_permute2x128_si256( t0123 , t4567 , 0x20 );
 			__m256i t2367 = _mm256_permute2x128_si256( t0123 , t4567 , 0x31 );
@@ -143,8 +149,8 @@ void btfy_s1( __m256i* ptr , unsigned n_m256, uint64_t extra_a )
 			t0145 ^= _gf2ext64_mul_2x1_x2_avx2( t2367 , s1_a );
 			t2367 ^= t0145;
 
-			_mm256_store_si256( ptr , t0145 );
-			_mm256_store_si256( ptr+1 , t2367 );
+			_mm256_storeu_si256( ptr , t0145 );
+			_mm256_storeu_si256( ptr+1 , t2367 );
 			ptr += 2;
 		}
 	}
@@ -167,8 +173,8 @@ void btfy_s0( __m256i* ptr , unsigned n_m256, uint64_t extra_a )
 		for(unsigned k=0;k<tab_size;k+=4) {
 			__m256i s0_a = _mm256_load_si256( (__m256i*) &cantor_to_gf264_2x[k] )^s0_ea;
 
-			__m256i t0145 = _mm256_load_si256(ptr);
-			__m256i t2367 = _mm256_load_si256(ptr+1);
+			__m256i t0145 = _mm256_loadu_si256(ptr);
+			__m256i t2367 = _mm256_loadu_si256(ptr+1);
 
 			__m256i t0246 = _mm256_unpacklo_epi64( t0145 , t2367 );
 			__m256i t1357 = _mm256_unpackhi_epi64( t0145 , t2367 );
@@ -176,8 +182,8 @@ void btfy_s0( __m256i* ptr , unsigned n_m256, uint64_t extra_a )
 			t0246 ^= _gf2ext64_mul_4x4_avx2( t1357 , s0_a );
 			t1357 ^= t0246;
 #if defined(_REORDER_OUTPUT_)
-			_mm256_store_si256( ptr , t0246 );
-			_mm256_store_si256( ptr+1 , t1357 );
+			_mm256_storeu_si256( ptr , t0246 );
+			_mm256_storeu_si256( ptr+1 , t1357 );
 #else
 			t0145 = _mm256_unpacklo_epi64( t0246 , t1357 );
 			t2367 = _mm256_unpackhi_epi64( t0246 , t1357 );
@@ -185,8 +191,8 @@ void btfy_s0( __m256i* ptr , unsigned n_m256, uint64_t extra_a )
 			__m256i t0123 = _mm256_permute2x128_si256( t0145 , t2367 , 0x20 );
 			__m256i t4567 = _mm256_permute2x128_si256( t0145 , t2367 , 0x31 );
 
-			_mm256_store_si256( ptr , t0123 );
-			_mm256_store_si256( ptr+1 , t4567 );
+			_mm256_storeu_si256( ptr , t0123 );
+			_mm256_storeu_si256( ptr+1 , t4567 );
 #endif
 			ptr += 2;
 		}
@@ -213,8 +219,8 @@ void i_btfy_s1( __m256i* ptr , unsigned n_m256, uint64_t extra_a )
 		for(unsigned k=0;k<tab_size;k+=2) {
 			__m128i s1_a = _mm_load_si128( (__m128i*) &cantor_to_gf264_2x[k] )^s1_ea;
 
-			__m256i t0145 = _mm256_load_si256(ptr);
-			__m256i t2367 = _mm256_load_si256(ptr+1);
+			__m256i t0145 = _mm256_loadu_si256(ptr);
+			__m256i t2367 = _mm256_loadu_si256(ptr+1);
 
 			t2367 ^= t0145;
 			t0145 ^= _gf2ext64_mul_2x1_x2_avx2( t2367 , s1_a );
@@ -222,8 +228,8 @@ void i_btfy_s1( __m256i* ptr , unsigned n_m256, uint64_t extra_a )
 			__m256i t0123 = _mm256_permute2x128_si256( t0145 , t2367 , 0x20 );
 			__m256i t4567 = _mm256_permute2x128_si256( t0145 , t2367 , 0x31 );
 
-			_mm256_store_si256( ptr , t0123 );
-			_mm256_store_si256( ptr+1 , t4567 );
+			_mm256_storeu_si256( ptr , t0123 );
+			_mm256_storeu_si256( ptr+1 , t4567 );
 			ptr += 2;
 		}
 	}
@@ -246,12 +252,12 @@ void i_btfy_s0( __m256i* ptr , unsigned n_m256, uint64_t extra_a )
 			__m256i s0_a = _mm256_load_si256( (__m256i*) &cantor_to_gf264_2x[k] )^s0_ea;
 
 #if defined(_REORDER_OUTPUT_)
-			__m256i t0246 = _mm256_load_si256(ptr);
-			__m256i t1357 = _mm256_load_si256(ptr+1);
+			__m256i t0246 = _mm256_loadu_si256(ptr);
+			__m256i t1357 = _mm256_loadu_si256(ptr+1);
 			__m256i t0145, t2367;
 #else
-			__m256i t0123 = _mm256_load_si256(ptr);
-			__m256i t4567 = _mm256_load_si256(ptr+1);
+			__m256i t0123 = _mm256_loadu_si256(ptr);
+			__m256i t4567 = _mm256_loadu_si256(ptr+1);
 
 			__m256i t0145 = _mm256_permute2x128_si256( t0123 , t4567 , 0x20 );
 			__m256i t2367 = _mm256_permute2x128_si256( t0123 , t4567 , 0x31 );
@@ -266,8 +272,8 @@ void i_btfy_s0( __m256i* ptr , unsigned n_m256, uint64_t extra_a )
 			t0145 = _mm256_unpacklo_epi64( t0246 , t1357 );
 			t2367 = _mm256_unpackhi_epi64( t0246 , t1357 );
 
-			_mm256_store_si256( ptr , t0145 );
-			_mm256_store_si256( ptr+1 , t2367 );
+			_mm256_storeu_si256( ptr , t0145 );
+			_mm256_storeu_si256( ptr+1 , t2367 );
 			ptr += 2;
 		}
 	}

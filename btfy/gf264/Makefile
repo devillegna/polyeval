@@ -44,7 +44,7 @@ INCPATH      += -I./src/neon
 endif
 
 
-TESTINCPATH  := -I/usr/local/include -I/opt/local/include -I/usr/include -I./src -I./benchmark -I./unit-tests 
+TESTINCPATH  := -I/usr/local/include -I/opt/local/include -I/usr/include -I./src -I./benchmark -I./unit-tests
 
 
 
@@ -69,6 +69,8 @@ endif
 
 
 #############################
+
+
 
 .INTERMEDIATE:  $(OBJS)
 
@@ -95,17 +97,30 @@ m1cycles.o: benchmark/m1cycles.c
 lib: $(OBJS)
 	ar rcs lib$(LIBNAME).a $^
 
+slib: CFLAGS += -fPIC
+slib: $(OBJS)
+	$(CC) -shared -fPIC -Wl,-soname,lib$(LIBNAME).so  -o lib$(LIBNAME).so $^  -lc
+
 %.o: src/%.c
 	$(CC) $(CFLAGS) $(INCPATH) -o $@ -c $<
 
 %.o: src/%.S
 	$(CC) $(CFLAGS) $(INCPATH) -o $@ -c $<
 
-define GEN_O
-%.o: $(1)/%.c
-	$(CC) $(CFLAGS) $(INCPATH) -o $$@ -c $$<
-endef
-$(foreach dir, $(EXT_SRC_DIRS), $(eval $(call GEN_O,$(dir))))
+%.o: src/avx2/%.c
+	$(CC) $(CFLAGS) $(INCPATH) -o $@ -c $<
+
+%.o: src/ref/%.c
+	$(CC) $(CFLAGS) $(INCPATH) -o $@ -c $<
+
+%.o: src/neon/%.c
+	$(CC) $(CFLAGS) $(INCPATH) -o $@ -c $<
+
+#define GEN_O
+#%.o: $(1)/%.c
+#	$(CC) $(CFLAGS) $(INCPATH) -o $$@ -c $$<
+#endef
+#$(foreach dir, $(EXT_SRC_DIRS), $(eval $(call GEN_O,$(dir))))
 
 
 %.S: %.c
@@ -115,5 +130,5 @@ $(foreach dir, $(EXT_SRC_DIRS), $(eval $(call GEN_O,$(dir))))
 #############################
 
 clean:
-	-rm *.o *.s *.q *.a test speed *-test
+	-rm *.o *.s *.q *.so *.a test speed *-test
 

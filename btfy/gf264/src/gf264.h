@@ -23,6 +23,7 @@ uint64_t _gf264_mul( uint64_t a , uint64_t b )
 
 uint64_t gf264_mul( uint64_t a , uint64_t b );
 
+uint64_t gf264_inv( uint64_t a );
 
 #endif
 

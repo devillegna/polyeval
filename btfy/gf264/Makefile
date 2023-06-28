@@ -8,6 +8,16 @@ PROJ ?= avx2
 #PROJ ?= ref
 #PROJ ?= neon
 
+
+OS := $(shell uname -s)
+ARCH := $(shell uname -m)
+ifeq  ($(OS), Darwin)
+ifeq  ($(ARCH), arm64)
+PROJ    = neon
+endif
+endif
+
+
 LIBNAME = gf264btfy
 
 
@@ -56,7 +66,7 @@ SRC_O       := $(CSRC:.c=.o)
 SRC_O_NODIR := $(notdir $(SRC_O))
 OBJS   = $(SRC_O_NODIR)
 
-#############################
+
 
 OS := $(shell uname -s)
 ARCH := $(shell uname -m)
@@ -66,7 +76,6 @@ CFLAGS    +=  -D_APPLE_SILICON_
 OBJS      += m1cycles.o
 endif
 endif
-
 
 #############################
 
@@ -99,7 +108,7 @@ lib: $(OBJS)
 
 slib: CFLAGS += -fPIC
 slib: $(OBJS)
-	$(CC) -shared -fPIC -Wl,-soname,lib$(LIBNAME).so  -o lib$(LIBNAME).so $^  -lc
+	$(CC) -shared -fPIC   -o lib$(LIBNAME).so $^  -lc
 
 %.o: src/%.c
 	$(CC) $(CFLAGS) $(INCPATH) -o $@ -c $<

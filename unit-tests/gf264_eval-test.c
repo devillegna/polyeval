@@ -73,7 +73,7 @@ uint8_t check_eq( const uint8_t *vec0, const uint8_t *vec1, unsigned len)
 
 
 
-#define LOGLEN 10
+#define LOGLEN 5
 
 #define LEN (1<<LOGLEN)
 
@@ -136,6 +136,40 @@ int test_equal( uint64_t * poly0, uint64_t * eval0, uint64_t * eval1, unsigned l
 }
 
 
+
+
+int test_shift_equal( uint64_t * poly0, uint64_t * eval0, uint64_t * eval1, unsigned len )
+{
+	printf("\ntest poly len: %d (uint64_t) and shit 1<<19\n", len );
+
+	int eq = 1;
+	for(int i=1;i<=TEST_RUN;i++) {
+		//randombytes( (uint8_t*)poly0 , len*8 );
+		randombytes( (uint8_t*)poly0 , 3*8 );
+		for(unsigned j=3;j<len;j++) poly0[j] = 0;
+
+		eval_ref( eval0 , poly0 , len , 1<<19 );
+		eval_fft( eval1 , poly0 , len , 1<<19 );
+
+		if( !check_eq( (uint8_t*)eval0 , (uint8_t*)eval1 , len*8 ) ) {
+			printf("neq: %d.\n", i );
+			print_u64( poly0 , len );
+			printf("->\n");
+			print_u64( eval0 , len );
+			printf("->\n");
+			print_u64( eval1 , len );
+			eq = 0;
+			break;
+		}
+	}
+
+	printf("\n%s for %d tests.\n", (eq)?"OK":"ERROR" , TEST_RUN );
+
+    return (eq)?0:-1;
+}
+
+
+
 int main(void)
 {
 	printf("GF(2^64) polynomial [%d] evaluation test.\n\n", LEN);
@@ -144,9 +178,13 @@ int main(void)
 	uint64_t eval0[LEN] __attribute__ ((aligned (32)));
 	uint64_t eval1[LEN] __attribute__ ((aligned (32)));
 
+	int fail = 0;
 	for(unsigned i=0;i<=LOGLEN;i++){
-		if( test_equal( poly0, eval0, eval1, 1<<i ) ) break;
+		if( test_equal( poly0, eval0, eval1, 1<<i ) ) { fail=1; break; }
+		if (i<3) continue;
+		if( test_shift_equal( poly0, eval0, eval1, 1<<i ) ) { fail=1; break; }
 	}
+	printf((fail)?"test FAIL\n":"test PASS\n");
 
 	return 0;
 }

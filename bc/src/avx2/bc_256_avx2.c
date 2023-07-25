@@ -25,7 +25,8 @@ void div_blk( __m256i *poly, int si_h, int si_l, int polylen )
 {
   int deg_diff = si_h-si_l;
   for(int i=polylen-1;i>=si_h;i--) {
-      poly[i-deg_diff] ^= poly[i];
+      //poly[i-deg_diff] ^= poly[i];
+      _mm256_storeu_si256( &(poly[i-deg_diff]) , _mm256_loadu_si256(&(poly[i-deg_diff]))^_mm256_loadu_si256(&(poly[i])) );
   }
 }
 
@@ -64,7 +65,8 @@ void idiv_blk( __m256i *poly, int si_h, int si_l, int polylen )
 {
   int deg_diff = si_h-si_l;
   for(int i=si_h;i<polylen;i++) {
-      poly[i-deg_diff] ^= poly[i];
+      //poly[i-deg_diff] ^= poly[i];
+      _mm256_storeu_si256( &(poly[i-deg_diff]) , _mm256_loadu_si256(&(poly[i-deg_diff]))^_mm256_loadu_si256(&(poly[i])) );
   }
 }
 

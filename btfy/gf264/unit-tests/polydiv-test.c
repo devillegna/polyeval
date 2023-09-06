@@ -42,7 +42,7 @@ uint8_t check_eq( const uint8_t *vec0, const uint8_t *vec1, unsigned len)
 #include "polydiv.h"
 
 
-#define TEST_RUN 2
+#define MAX_SI 1
 
 
 #define LOG_LEN  16
@@ -64,7 +64,7 @@ int main(void)
 		unsigned len = 1<<l;
 		printf("polydiv( %d x u64 ).\n", len );
 
-		for(int i=0;i<TEST_RUN;i++) {
+		for(int i=0;i<=MAX_SI;i++) {
 			printf(" / s_%d\n", i );
 			for(int k=0;k<len;k++) inp0[k] = 1;
 			memcpy( inp1 , inp0 , sizeof(uint64_t)*len );

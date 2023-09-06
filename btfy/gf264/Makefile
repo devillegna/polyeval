@@ -86,7 +86,7 @@ endif
 .PHONY: all clean
 
 
-all: lib btfy-test btfy-varlen-test
+all: lib btfy-test btfy-varlen-test polydiv-test
 
 %-test:  %-test.o lib
 	$(LD) $(LDFLAGS) $(LIBPATH) -L. -o $@ $<  $(LIBS) -l$(LIBNAME)

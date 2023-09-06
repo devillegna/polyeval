@@ -11,7 +11,8 @@ static inline void xor_down( uint64_t *poly_st_term , unsigned blk_size, int n_b
 }
 
 
-
+#if 0
+// O(n)
 void polydiv( uint64_t *poly , int polylen , unsigned si )
 {
     unsigned blk_size = 1<<si;
@@ -21,7 +22,17 @@ void polydiv( uint64_t *poly , int polylen , unsigned si )
         xor_down( poly + i*blk_size , blk_size , (1<<log_n_blk)-1 );
     }
 }
-
+#else
+// O(nlogn)
+void polydiv( uint64_t *poly , int polylen , unsigned si )
+{
+    unsigned blk_size = 1<<si;
+    unsigned len_blk = polylen>>si;
+    for(unsigned i=2;i<len_blk;i+=2) {
+        xor_down( poly + i*blk_size , blk_size , ((i-1)&i)^(i-1) );
+    }
+}
+#endif
 
 
 void ipolydiv( uint64_t *poly , int polylen , unsigned si )
@@ -30,8 +41,7 @@ void ipolydiv( uint64_t *poly , int polylen , unsigned si )
     unsigned len_blk = polylen>>si;
     len_blk = (len_blk&1)? len_blk : len_blk-1;
     for(unsigned i=len_blk-1;i>0;i-=2) {
-        int log_n_blk = __builtin_ctz(i);
-        xor_down( poly + i*blk_size , blk_size , (1<<log_n_blk)-1 );
+        xor_down( poly + i*blk_size , blk_size , ((i-1)&i)^(i-1) );
     }
 }
 

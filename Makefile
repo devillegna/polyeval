@@ -8,17 +8,28 @@ PROJ ?= avx2
 #PROJ ?= ref
 #PROJ ?= neon
 
+OS := $(shell uname -s)
+ARCH := $(shell uname -m)
+ifeq  ($(OS), Darwin)
+ifeq  ($(ARCH), arm64)
+PROJ    = neon
+endif
+endif
+
 LIB0NAME = fftbc
 LIB0PATH = ./bc
 
 LIB1NAME = gf264btfy
 LIB1PATH = ./btfy/gf264
 
+LIB2NAME = gf232btfy
+LIB2PATH = ./btfy/gf232
+
 
 CFLAGS   := -O3 -std=c11 -Wall -Wextra -Wpedantic -fno-omit-frame-pointer  #-Werror
 INCPATH  := -I/usr/local/include -I/opt/local/include -I/usr/include -I./src
-LDFLAGS  := $(LDFLAGS) -L$(LIB0PATH) -L$(LIB1PATH)
-LIBS     := -lcrypto -l$(LIB0NAME) -l$(LIB1NAME)
+LDFLAGS  := $(LDFLAGS) -L$(LIB0PATH) -L$(LIB1PATH)  -L$(LIB2PATH)
+LIBS     := -lcrypto -l$(LIB0NAME) -l$(LIB1NAME)  -l$(LIB2NAME)
 
 
 EXT_SRC_DIRS  =
@@ -48,7 +59,7 @@ INCPATH      += -I./src/neon
 endif
 
 
-TESTINCPATH  := -I/usr/local/include -I/opt/local/include -I/usr/include -I./src -I./benchmark -I./unit-tests -I$(LIB0PATH)/src -I$(LIB1PATH)/src
+TESTINCPATH  := -I/usr/local/include -I/opt/local/include -I/usr/include -I./src -I./benchmark -I./unit-tests -I$(LIB0PATH)/src -I$(LIB1PATH)/src  -I$(LIB2PATH)/src
 
 
 
@@ -79,7 +90,7 @@ endif
 .PHONY: all clean
 
 
-all: lib gf264_eval-test
+all: lib gf264_eval-test gf232_eval-test
 
 lib: $(LIB0PATH)/lib$(LIB0NAME).a $(LIB1PATH)/lib$(LIB1NAME).a
 

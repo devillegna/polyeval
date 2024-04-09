@@ -1,5 +1,5 @@
 
-#include "bc_256.h"
+#include "bc_512.h"
 
 
 #include <emmintrin.h>
@@ -25,7 +25,8 @@ void div_blk( __m256i *poly, int si_h, int si_l, int polylen )
 {
   int deg_diff = si_h-si_l;
   for(int i=polylen-1;i>=si_h;i--) {
-      poly[i-deg_diff] ^= poly[i];
+      poly[(i-deg_diff)*2]   ^= poly[i*2];
+      poly[(i-deg_diff)*2+1] ^= poly[i*2+1];
   }
 }
 
@@ -36,7 +37,7 @@ void rep_in_si( __m256i *data, int datalen, int logsize_blk, int polyloglen_blk,
     int polylen = (1<<(i+logsize_blk+1));
     int si_h = (1<<(i+logsize_blk));
     int si_l = (1<<(i+logsize_blk-si));
-    for(int j=0;j<datalen;j+=polylen) div_blk( data+j , si_h, si_l, polylen );
+    for(int j=0;j<datalen;j+=polylen) div_blk( data+j*2 , si_h, si_l, polylen );
   }
 }
 
@@ -54,7 +55,7 @@ void cvt( __m256i *data, int datalen, int logsize_blk, int polyloglen_blk )
 
 
 
-void bc_256( void * poly, unsigned n_256 ) {  cvt( (__m256i*) poly , n_256 , 0 , __builtin_ctz(n_256)  ); }
+void bc_512( void * poly, unsigned n_512 ) {  cvt( (__m256i*) poly , n_512 , 0 , __builtin_ctz(n_512)  ); }
 
 
 ////////
@@ -64,7 +65,8 @@ void idiv_blk( __m256i *poly, int si_h, int si_l, int polylen )
 {
   int deg_diff = si_h-si_l;
   for(int i=si_h;i<polylen;i++) {
-      poly[i-deg_diff] ^= poly[i];
+      poly[(i-deg_diff)*2]   ^= poly[i*2];
+      poly[(i-deg_diff)*2+1] ^= poly[i*2+1];
   }
 }
 
@@ -75,7 +77,7 @@ void irep_in_si( __m256i *data, int datalen, int logsize_blk, int polyloglen_blk
     int polylen = (1<<(i+logsize_blk+1));
     int si_h = (1<<(i+logsize_blk));
     int si_l = (1<<(i+logsize_blk-si));
-    for(int j=0;j<datalen;j+=polylen) idiv_blk( data+j , si_h, si_l, polylen );
+    for(int j=0;j<datalen;j+=polylen) idiv_blk( data+j*2 , si_h, si_l, polylen );
   }
 }
 
@@ -93,7 +95,7 @@ void icvt( __m256i *data, int datalen, int logsize_blk, int polyloglen_blk )
 
 
 
-void ibc_256( void * poly, unsigned n_256 ) { icvt( (__m256i*) poly , n_256 , 0 , __builtin_ctz(n_256)  ); }
+void ibc_512( void * poly, unsigned n_512 ) { icvt( (__m256i*) poly , n_512 , 0 , __builtin_ctz(n_512) ); }
 
 
 

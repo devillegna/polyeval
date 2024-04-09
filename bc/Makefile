@@ -83,7 +83,7 @@ endif
 .PHONY: all clean
 
 
-all: lib
+all: lib bc_32-test bc_512-test
 
 %-test:  %-test.o lib
 	$(LD) $(LDFLAGS) $(LIBPATH) -L. -o $@ $<  $(LIBS) -l$(LIBNAME)

@@ -61,8 +61,8 @@ uint8_t check_eq( const uint8_t *vec0, const uint8_t *vec1, unsigned len)
 #define TEST_RUN 10
 
 
-#define LEN    (16)
-#define LOG_LEN  (4)
+#define LEN    (32)
+#define LOG_LEN  (5)
 
 
 static uint32_t eval_LEN( const uint32_t * poly , uint32_t point )

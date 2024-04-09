@@ -86,7 +86,7 @@ endif
 .PHONY: all clean
 
 
-all: lib btfy-test btfy-varlen-test polyeval-test
+all: lib btfy-test btfy-varlen-test polyeval-test gf232inv-test btfy-varlen-benchmark
 
 %-test:  %-test.o lib
 	$(LD) $(LDFLAGS) $(LIBPATH) -L. -o $@ $<  $(LIBS) -l$(LIBNAME)
@@ -139,5 +139,5 @@ slib: $(OBJS)
 #############################
 
 clean:
-	-rm *.o *.s *.q *.so *.a test speed *-test
+	-rm *.o *.s *.q *.so *.a test speed *-test *-benchmark
 

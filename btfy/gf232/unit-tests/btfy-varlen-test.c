@@ -135,7 +135,7 @@ int main(void)
 	uint32_t inp1[LEN] __attribute__ ((aligned (32)));
 	uint32_t inp2[LEN] __attribute__ ((aligned (32)));
 
-	for(unsigned i=8;i<=LOG_LEN;i++) {
+	for(unsigned i=1;i<=LOG_LEN;i++) {
 		test(inp0,inp1,inp2,i);
 	}
 

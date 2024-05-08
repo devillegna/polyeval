@@ -25,8 +25,21 @@ void div_blk( __m256i *poly, int si_h, int si_l, int polylen )
 {
   int deg_diff = si_h-si_l;
   for(int i=polylen-1;i>=si_h;i--) {
+#if 1
+      __m256i d0 = _mm256_loadu_si256(poly+(i-deg_diff)*2);
+      __m256i d1 = _mm256_loadu_si256(poly+(i-deg_diff)*2+1);
+      __m256i p0 = _mm256_loadu_si256(poly+i*2);
+      __m256i p1 = _mm256_loadu_si256(poly+i*2+1);
+      d0 ^= p0;
+      d1 ^= p1;
+      _mm256_storeu_si256( poly+(i-deg_diff)*2 , d0 );
+      _mm256_storeu_si256( poly+(i-deg_diff)*2+1 , d1 );
+      //poly[(i-deg_diff)*2]   ^= poly[i*2];
+      //poly[(i-deg_diff)*2+1] ^= poly[i*2+1];
+#else
       poly[(i-deg_diff)*2]   ^= poly[i*2];
       poly[(i-deg_diff)*2+1] ^= poly[i*2+1];
+#endif
   }
 }
 
@@ -65,8 +78,21 @@ void idiv_blk( __m256i *poly, int si_h, int si_l, int polylen )
 {
   int deg_diff = si_h-si_l;
   for(int i=si_h;i<polylen;i++) {
+#if 1
+      __m256i d0 = _mm256_loadu_si256(poly+(i-deg_diff)*2);
+      __m256i d1 = _mm256_loadu_si256(poly+(i-deg_diff)*2+1);
+      __m256i p0 = _mm256_loadu_si256(poly+i*2);
+      __m256i p1 = _mm256_loadu_si256(poly+i*2+1);
+      d0 ^= p0;
+      d1 ^= p1;
+      _mm256_storeu_si256( poly+(i-deg_diff)*2 , d0 );
+      _mm256_storeu_si256( poly+(i-deg_diff)*2+1 , d1 );
+      //poly[(i-deg_diff)*2]   ^= poly[i*2];
+      //poly[(i-deg_diff)*2+1] ^= poly[i*2+1];
+#else
       poly[(i-deg_diff)*2]   ^= poly[i*2];
       poly[(i-deg_diff)*2+1] ^= poly[i*2+1];
+#endif
   }
 }
 

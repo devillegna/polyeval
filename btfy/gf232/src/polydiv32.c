@@ -40,7 +40,7 @@ static inline void xor_down( uint32_t *poly_st_term , unsigned blk_size, int n_b
     }
 }
 
-void polydiv( uint32_t *poly , int polylen , unsigned si )
+void polydiv32( uint32_t *poly , int polylen , unsigned si )
 {
     unsigned blk_size = 1<<si;
     unsigned len_blk = polylen>>si;
@@ -49,7 +49,7 @@ void polydiv( uint32_t *poly , int polylen , unsigned si )
     }
 }
 
-void ipolydiv( uint32_t *poly , int polylen , unsigned si )
+void ipolydiv32( uint32_t *poly , int polylen , unsigned si )
 {
     unsigned blk_size = 1<<si;
     unsigned len_blk = polylen>>si;

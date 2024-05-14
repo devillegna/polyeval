@@ -199,11 +199,8 @@ __m256i gf232_mul8x8_avx2( __m256i a , __m256i b )
 static inline
 uint32_t gf232_mul_u32_sse( uint32_t a , uint32_t b )
 {
-	uint32_t tmp[4] __attribute__((aligned(32))) = {0};
-	tmp[0] = a;
-	__m128i a0 = _mm_load_si128( (__m128i const *)tmp );
-	tmp[0] = b;
-	__m128i b0 = _mm_load_si128( (__m128i const *)tmp );
+	__m128i a0; a0 = _mm_insert_epi32( a0 , a , 0 );
+	__m128i b0; b0 = _mm_insert_epi32( b0 , b , 0 );
 	__m128i c0 = _mm_clmulepi64_si128( a0 , b0 , 0 );
 
 	__m128i reducer = _mm_set1_epi64x( 0x8d );

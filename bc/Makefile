@@ -8,12 +8,9 @@ PROJ ?= avx2
 #PROJ ?= ref
 #PROJ ?= neon
 
-OS := $(shell uname -s)
 ARCH := $(shell uname -m)
-ifeq  ($(OS), Darwin)
 ifeq  ($(ARCH), arm64)
 PROJ    = neon
-endif
 endif
 
 LIBNAME = fftbc

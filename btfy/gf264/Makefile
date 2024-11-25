@@ -9,12 +9,9 @@ PROJ ?= avx2
 #PROJ ?= neon
 
 
-OS := $(shell uname -s)
 ARCH := $(shell uname -m)
-ifeq  ($(OS), Darwin)
 ifeq  ($(ARCH), arm64)
 PROJ    = neon
-endif
 endif
 
 

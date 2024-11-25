@@ -92,13 +92,16 @@ endif
 
 all: lib gf264_eval-test gf232_eval-test
 
-lib: $(LIB0PATH)/lib$(LIB0NAME).a $(LIB1PATH)/lib$(LIB1NAME).a
+lib: $(LIB0PATH)/lib$(LIB0NAME).a $(LIB1PATH)/lib$(LIB1NAME).a $(LIB2PATH)/lib$(LIB2NAME).a
 
 $(LIB0PATH)/lib$(LIB0NAME).a:
 	cd $(LIB0PATH) && $(MAKE) PROJ=$(PROJ) lib
 
 $(LIB1PATH)/lib$(LIB1NAME).a:
 	cd $(LIB1PATH) && $(MAKE) PROJ=$(PROJ) lib
+
+$(LIB2PATH)/lib$(LIB2NAME).a:
+	cd $(LIB2PATH) && $(MAKE) PROJ=$(PROJ) lib
 
 %-test:  %-test.o
 	$(LD) $(LDFLAGS) $(LIBPATH) -o $@ $<  $(LIBS)

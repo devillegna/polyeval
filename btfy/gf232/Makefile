@@ -1,28 +1,28 @@
 
-
 CC = clang
 LD = clang
-
-
-PROJ ?= avx2
-#PROJ ?= ref
-#PROJ ?= neon
-
-
-ARCH := $(shell uname -m)
-ifeq  ($(ARCH), arm64)
-PROJ    = neon
-endif
-
-
-LIBNAME = gf232btfy
-
 
 CFLAGS := -O3 -std=c11 -Wall -Wextra -Wpedantic -fno-omit-frame-pointer  #-Werror
 LDFLAGS  := $(LDFLAGS)
 INCPATH  = -I/usr/local/include -I/opt/local/include -I/usr/include -I./src
 LIBS    = -lcrypto
 
+LIBNAME = gf232btfy
+
+PROJ ?= avx2
+#PROJ ?= ref
+#PROJ ?= neon
+
+OS := $(shell uname -s)
+ARCH := $(shell uname -m)
+
+ifneq (,$(filter $(ARCH),arm64 aarch64))
+PROJ    = neon
+endif
+
+ifeq  ($(ARCH), aarch64)
+CFLAGS    +=  -flax-vector-conversions -march=native
+endif
 
 EXT_SRC_DIRS  =
 
@@ -64,9 +64,6 @@ SRC_O_NODIR := $(notdir $(SRC_O))
 OBJS   = $(SRC_O_NODIR)
 
 
-
-OS := $(shell uname -s)
-ARCH := $(shell uname -m)
 ifeq  ($(OS), Darwin)
 ifeq  ($(ARCH), arm64)
 CFLAGS    +=  -D_APPLE_SILICON_

@@ -1,1 +1,1 @@
-dencoder/gf264/src/dencoder.h
+../dencoder/gf264/src/dencoder.h

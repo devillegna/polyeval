@@ -236,7 +236,7 @@ static void gather_tr_32_x32( uint32_t * dest , const uint8_t * src , unsigned s
 
 
 
-static const uint8_t enc_4bit_tbls[];
+extern const uint8_t enc_4bit_tbls[1024];
 
 static void linearmap_32_x32( uint64_t * des , const uint32_t *src )
 {
@@ -308,7 +308,7 @@ void encode_64( uint64_t * rfx , const uint64_t * fx , unsigned n_u64 )
 
 
 
-static const uint8_t dec_4bit_tbls[];
+extern const uint8_t dec_4bit_tbls[2048];
 
 static void linearmap_64_x16( uint64_t * des , const uint64_t *src )
 {

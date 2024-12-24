@@ -1,6 +1,6 @@
 
-CC = clang
-LD = clang
+CC ?= clang
+LD ?= clang
 
 CFLAGS   = -O3 -std=c11 -Wall -Wextra -Wpedantic -fno-omit-frame-pointer  #-Werror
 INCPATH  = -I/usr/local/include -I/opt/local/include -I/usr/include -I./src

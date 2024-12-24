@@ -1,17 +1,7 @@
 
 
-CC = gcc
-LD = gcc
-
-
-PROJ ?= avx2
-#PROJ ?= ref
-#PROJ ?= neon
-
-ARCH := $(shell uname -m)
-ifeq  ($(ARCH), arm64)
-PROJ    = neon
-endif
+CC ?= clang
+LD ?= clang
 
 LIB0NAME = fftbc
 LIB0PATH = ./bc
@@ -27,18 +17,27 @@ LIB3PATH = ./dencoder/gf264
 
 
 CFLAGS   := -O3 -std=c11 -Wall -Wextra -Wpedantic -fno-omit-frame-pointer  #-Werror
-INCPATH  := -I/usr/local/include -I/opt/local/include -I/usr/include -I./include -I./src
+INCPATH  := -I/usr/local/include -I/opt/local/include -I/usr/include -I./src
 LDFLAGS  := $(LDFLAGS) -L$(LIB0PATH) -L$(LIB1PATH)  -L$(LIB2PATH) -L$(LIB3PATH)
 LIBS     := -lcrypto -l$(LIB0NAME) -l$(LIB1NAME)  -l$(LIB2NAME) -l$(LIB3NAME)
 
 
-EXT_SRC_DIRS  =
+PROJ ?= avx2
+#PROJ ?= ref
+#PROJ ?= neon
 
-ifdef ASAN
-CFLAGS  += -fsanitize=address -fno-sanitize-recover=all
-LDFLAGS += -fsanitize=address -fno-sanitize-recover=all
+OS := $(shell uname -s)
+ARCH := $(shell uname -m)
+
+ifneq (,$(filter $(ARCH),arm64 aarch64))
+PROJ    = neon
 endif
 
+ifeq  ($(ARCH), aarch64)
+CFLAGS    +=  -flax-vector-conversions -march=native
+endif
+
+EXT_SRC_DIRS  =
 
 ifeq ($(PROJ),ref)
 
@@ -58,10 +57,15 @@ INCPATH      += -I./src/neon
 
 endif
 
+ifdef ASAN
+CFLAGS  += -fsanitize=address -fno-sanitize-recover=all
+LDFLAGS += -fsanitize=address -fno-sanitize-recover=all
+endif
+
 
 TESTINCPATH  := -I/usr/local/include -I/opt/local/include -I/usr/include -I./include -I./src -I./benchmark -I./unit-tests -I$(LIB0PATH)/src -I$(LIB1PATH)/src  -I$(LIB2PATH)/src -I$(LIB3PATH)/src
 
-
+INCPATH += $(TESTINCPATH)
 
 #############################
 
@@ -78,7 +82,7 @@ ARCH := $(shell uname -m)
 ifeq  ($(OS), Darwin)
 ifeq  ($(ARCH), arm64)
 CFLAGS    +=  -D_APPLE_SILICON_
-OBJS      += m1cycles.o
+#OBJS      += m1cycles.o
 endif
 endif
 
@@ -106,11 +110,11 @@ $(LIB2PATH)/lib$(LIB2NAME).a:
 $(LIB3PATH)/lib$(LIB3NAME).a:
 	cd $(LIB3PATH) && $(MAKE) PROJ=$(PROJ) lib
 
-%-test:  %-test.o
-	$(LD) $(LDFLAGS) $(LIBPATH) -o $@ $<  $(LIBS)
+%-test: $(OBJS) %-test.o
+	$(LD) $(LDFLAGS) $(LIBPATH) -o $@ $^  $(LIBS)
 
-%-benchmark:  %-benchmark.o
-	$(LD) $(LDFLAGS) $(LIBPATH) -o $@ $<  $(LIBS)
+%-benchmark: $(OBJS) %-benchmark.o
+	$(LD) $(LDFLAGS) $(LIBPATH) -o $@ $^  $(LIBS)
 
 %.o: unit-tests/%.c
 	$(CC) $(CFLAGS) $(TESTINCPATH) -o $@ -c $<

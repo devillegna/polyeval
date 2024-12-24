@@ -1,6 +1,6 @@
 
-CC = clang
-LD = clang
+CC ?= clang
+LD ?= clang
 
 CFLAGS := -O3 -std=c11 -Wall -Wextra -Wpedantic -fno-omit-frame-pointer  #-Werror
 LDFLAGS  := $(LDFLAGS)

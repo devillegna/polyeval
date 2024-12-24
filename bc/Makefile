@@ -1,15 +1,17 @@
 
 
-CC = gcc
-LD = gcc
+CC ?= clang
+LD ?= clang
 
 
 PROJ ?= avx2
 #PROJ ?= ref
 #PROJ ?= neon
 
+OS := $(shell uname -s)
 ARCH := $(shell uname -m)
-ifeq  ($(ARCH), arm64)
+
+ifneq (,$(filter $(ARCH),arm64 aarch64))
 PROJ    = neon
 endif
 

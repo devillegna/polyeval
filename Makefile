@@ -3,8 +3,8 @@
 CC ?= clang
 LD ?= clang
 
-LIB0NAME = fftbc
-LIB0PATH = ./bc
+LIB3NAME = fftbc
+LIB3PATH = ./bc
 
 LIB1NAME = gf264btfy
 LIB1PATH = ./btfy/gf264
@@ -12,8 +12,8 @@ LIB1PATH = ./btfy/gf264
 LIB2NAME = gf232btfy
 LIB2PATH = ./btfy/gf232
 
-LIB3NAME = gf264dencoder
-LIB3PATH = ./dencoder/gf264
+LIB0NAME = gf264dencoder
+LIB0PATH = ./dencoder/gf264
 
 
 CFLAGS   := -O3 -std=c11 -Wall -Wextra -Wpedantic -fno-omit-frame-pointer  #-Werror

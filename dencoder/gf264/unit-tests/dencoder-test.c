@@ -83,7 +83,7 @@ int main(void)
         decode_64( out1 , out0 , LEN64*2 );
 
 
-        int r = check_eq( inp , out1 , LEN64*8 );
+        int r = check_eq( (const uint8_t *)inp , (const uint8_t *)out1 , LEN64*8 );
 		printf("[%d] low:  %d\n", i , r );
 		for(int j=0;j<LEN64;j++) {
 			if (0 != out1[LEN64+j]) { r=0; break; }

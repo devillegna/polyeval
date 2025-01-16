@@ -74,12 +74,12 @@ void btfy_s2s1s0_x1_32( uint32_t * poly , uint32_t a_s2, uint32_t a_s1, uint32_t
 	p0 ^= _gf232_mul4x1_neon( p1 , s2_a_0 );
 	p1 ^= p0;
 
-	uint32x4_t p2 = vuzp1q_u64( p0 , p1 );
-	uint32x4_t p3 = vuzp2q_u64( p0 , p1 );
+	uint32x4_t p2 = vreinterpretq_u32_u64(vuzp1q_u64( vreinterpretq_u64_u32(p0) , vreinterpretq_u64_u32(p1) ));
+	uint32x4_t p3 = vreinterpretq_u32_u64(vuzp2q_u64( vreinterpretq_u64_u32(p0) , vreinterpretq_u64_u32(p1) ));
 	p2 ^= _gf232_mul4x4_neon( p3 , s1_a );
 	p3 ^= p2;
-	p0 = vzip1q_u64( p2 , p3 );
-	p1 = vzip2q_u64( p2 , p3 );
+	p0 = vreinterpretq_u32_u64(vuzp1q_u64( vreinterpretq_u64_u32(p2) , vreinterpretq_u64_u32(p3) ));
+	p1 = vreinterpretq_u32_u64(vuzp2q_u64( vreinterpretq_u64_u32(p2) , vreinterpretq_u64_u32(p3) ));
 
 	p2 = vuzp1q_u32( p0 , p1 );
 	p3 = vuzp2q_u32( p0 , p1 );
@@ -220,12 +220,12 @@ void i_btfy_s2s1s0_x1_32( uint32_t * poly , uint32_t a_s2, uint32_t a_s1, uint32
 	p0 = vzip1q_u32( p2 , p3 );
 	p1 = vzip2q_u32( p2 , p3 );
 
-	p2 = vuzp1q_u64( p0 , p1 );
-	p3 = vuzp2q_u64( p0 , p1 );
+	p2 = vreinterpretq_u32_u64(vuzp1q_u64( vreinterpretq_u64_u32(p0) , vreinterpretq_u64_u32(p1) ));
+	p3 = vreinterpretq_u32_u64(vuzp2q_u64( vreinterpretq_u64_u32(p0) , vreinterpretq_u64_u32(p1) ));
 	p3 ^= p2;
 	p2 ^= _gf232_mul4x4_neon( p3 , s1_a );
-	p0 = vzip1q_u64( p2 , p3 );
-	p1 = vzip2q_u64( p2 , p3 );
+	p0 = vreinterpretq_u32_u64(vuzp1q_u64( vreinterpretq_u64_u32(p2) , vreinterpretq_u64_u32(p3) ));
+	p1 = vreinterpretq_u32_u64(vuzp2q_u64( vreinterpretq_u64_u32(p2) , vreinterpretq_u64_u32(p3) ));
 
 	p1 ^= p0;
 	p0 ^= _gf232_mul4x1_neon( p1 , s2_a_0 );

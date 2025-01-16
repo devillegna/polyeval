@@ -1,7 +1,6 @@
 
-
-CC ?= clang
-LD ?= clang
+CC = clang
+LD = clang
 
 
 PROJ ?= avx2
@@ -22,7 +21,6 @@ CFLAGS := -O3 -std=c11 -Wall -Wextra -Wpedantic -fno-omit-frame-pointer  #-Werro
 LDFLAGS  := $(LDFLAGS)
 INCPATH  = -I/usr/local/include -I/opt/local/include -I/usr/include -I./src
 LIBS    = -lcrypto
-
 
 EXT_SRC_DIRS  =
 
@@ -47,6 +45,12 @@ else ifeq ($(PROJ),neon)
 
 EXT_SRC_DIRS  += ./src/neon
 INCPATH      += -I./src/neon
+
+ifeq  ($(ARCH), aarch64)
+CFLAGS    +=  -flax-vector-conversions -march=armv8-a+crypto -mfpu=neon
+else
+CFLAGS    +=  -flax-vector-conversions -mcpu=apple-m1
+endif
 
 endif
 

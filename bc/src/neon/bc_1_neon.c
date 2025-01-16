@@ -3,6 +3,9 @@
 
 #include "arm_neon.h"
 
+static inline
+uint8x16_t _vmulq_p8(uint8x16_t a,uint8x16_t b) { return vreinterpretq_u8_p8(vmulq_p8(vreinterpretq_p8_u8(a),vreinterpretq_p8_u8(b))); }
+
 void bc_1_256( void *_poly , unsigned n_256bit )
 {
   uint8_t *poly = (uint8_t*)_poly;
@@ -14,7 +17,7 @@ void bc_1_256( void *_poly , unsigned n_256bit )
   // 0,8,4,12, 2,10,6,14,  1,9,5,13,  3,11,7,15
   static uint8_t _recovery_idx[16] = { 0,8,4,12, 2,10,6,14, 1,9,5,13, 3,11,7,15 };
   uint8x16_t recovery_idx = vld1q_u8(_recovery_idx);
-  poly8x16_t mask_0x16 = vdupq_n_p8(0x16);
+  uint8x16_t mask_0x16 = vdupq_n_u8(0x16);
   uint8x16_t mask_15 = vdupq_n_u8(15);
   uint8x16_t zero = vdupq_n_u8(0);
 
@@ -50,9 +53,9 @@ void bc_1_256( void *_poly , unsigned n_256bit )
     uint8x16_t t8_0 = vuzp1q_u8(vreinterpretq_u8_u16(t16_0),vreinterpretq_u8_u16(t16_1));  // 0,16,8,24, 4,20,12,28,  2,18,10,26,  6,22,14,30 <- 0,1,16,17, 8,9,24,25, 4,5,20,21, 12,13,28,29
     uint8x16_t t8_1 = vuzp2q_u8(vreinterpretq_u8_u16(t16_0),vreinterpretq_u8_u16(t16_1));  // 1,17,9,25, 5,21,13,29,  3,19,11,27,  7,23,15,31 <- 2,3,18,19, 10,11,26,27, 6,7,22,23, 14,15,30,31
 //  [16] s3^1:  s3 = x^8 + x^4 + x^2 + x
-    uint8x16_t mm1 = vreinterpretq_u8_p8(vmulq_p8(mask_0x16, vreinterpretq_p8_u8(vshrq_n_u8(t8_1,4))));
+    uint8x16_t mm1 = _vmulq_p8(mask_0x16, vshrq_n_u8(t8_1,4));
     t8_1 ^= vshrq_n_u8(mm1,4);
-    t8_0 ^= vreinterpretq_u8_p8(vmulq_p8(mask_0x16, vreinterpretq_p8_u8(t8_1)));
+    t8_0 ^= _vmulq_p8(mask_0x16, t8_1);
 //layer 22: [8] s2^1:(4,1) suggest unit:1
     t8_1 ^= vqtbl1q_u8( div_s2_s1_h ,vshrq_n_u8(t8_1,4));
     t8_0 ^= vqtbl1q_u8( div_s2_s1_h ,vshrq_n_u8(t8_0,4));
@@ -61,17 +64,17 @@ void bc_1_256( void *_poly , unsigned n_256bit )
     t8_0 ^= vqtbl1q_u8( div_x2_x_diff ,t8_0&mask_15);
 
 //layer 17: [256] s2^2:(128,32) suggest unit:16
-    uint16x8_t q8_0 = vqtbl1q_u8(t8_0,recovery_idx);  // 0,2,4,6,  8,10,12,14, 16,18,20,22, 24,26,28,30
-    uint16x8_t q8_1 = vqtbl1q_u8(t8_1,recovery_idx);  // 1,3,5,7,  9,11,13,15, 17,19,21,23, 25,27,29,31
+    uint8x16_t q8_0 = vqtbl1q_u8(t8_0,recovery_idx);  // 0,2,4,6,  8,10,12,14, 16,18,20,22, 24,26,28,30
+    uint8x16_t q8_1 = vqtbl1q_u8(t8_1,recovery_idx);  // 1,3,5,7,  9,11,13,15, 17,19,21,23, 25,27,29,31
 
-    uint16x8_t r8_0 = vzip1q_u8( q8_0 , q8_1 );
-    uint16x8_t r8_1 = vzip2q_u8( q8_0 , q8_1 );
+    uint8x16_t r8_0 = vzip1q_u8( q8_0 , q8_1 );
+    uint8x16_t r8_1 = vzip2q_u8( q8_0 , q8_1 );
 
     r8_1 ^= vextq_u8(r8_1,zero,12);
     r8_0 ^= vextq_u8(zero,r8_1,12);
 //layer 18: [128] s2^1:(64,16) suggest unit:16
-    uint64x2_t r64_0 = vuzp1q_u64(r8_0,r8_1);  // 0,2
-    uint64x2_t r64_1 = vuzp2q_u64(r8_0,r8_1);  // 1,3
+    uint64x2_t r64_0 = vuzp1q_u64(vreinterpretq_u64_u8(r8_0),vreinterpretq_u64_u8(r8_1));  // 0,2
+    uint64x2_t r64_1 = vuzp2q_u64(vreinterpretq_u64_u8(r8_0),vreinterpretq_u64_u8(r8_1));  // 1,3
 
     r64_1 ^= vshrq_n_u64(r64_1,48);
     r64_0 ^= vshlq_n_u64(r64_1,16);
@@ -102,7 +105,7 @@ void bc_1_256( void *_poly , unsigned n_256bit )
 void ibc_1_256( void *_poly , unsigned n_256bit )
 {
   uint8_t *poly = (uint8_t*)_poly;
-  poly8x16_t mask_0x16 = vdupq_n_p8(0x16);
+  uint8x16_t mask_0x16 = vdupq_n_u8(0x16);
   uint8x16_t mask_15 = vdupq_n_u8(15);
   uint8x16_t zero = vdupq_n_u8(0);
 
@@ -129,8 +132,8 @@ void ibc_1_256( void *_poly , unsigned n_256bit )
     uint8x16_t t8_0 = vuzp1q_u8(np0,np1);
     uint8x16_t t8_1 = vuzp2q_u8(np0,np1);
 
-    t8_0 ^= vmulq_p8(mask_0x16, vreinterpretq_p8_u8(t8_1));
-    //t8_1 ^= vshrq_n_u8( vmulq_p8(mask_0x16, vshrq_n_u8(t8_1,4)) ,4);  // XXX: use tbl to do the mul_hi
+    t8_0 ^= _vmulq_p8(mask_0x16, t8_1);
+    //t8_1 ^= vshrq_n_u8( _vmulq_p8(mask_0x16, vshrq_n_u8(t8_1,4)) ,4);  // XXX: use tbl to do the mul_hi
     t8_1 ^= vqtbl1q_u8( mul_0x16_high , vshrq_n_u8(t8_1,4) );
 
     np0 = vzip1q_u8(t8_0,t8_1);
@@ -139,8 +142,8 @@ void ibc_1_256( void *_poly , unsigned n_256bit )
 ////////////
 
 //layer 20: [64] s1^1:(32,16) suggest unit:16
-    uint32x4_t p32_0 = vuzp1q_u32(np0,np1);  // 0,1,2,3 -> 0,2,4,6
-    uint32x4_t p32_1 = vuzp2q_u32(np0,np1);  // 4,5,6,7 -> 1,3,5,7
+    uint32x4_t p32_0 = vuzp1q_u32(vreinterpretq_u32_u8(np0),vreinterpretq_u32_u8(np1));  // 0,1,2,3 -> 0,2,4,6
+    uint32x4_t p32_1 = vuzp2q_u32(vreinterpretq_u32_u8(np0),vreinterpretq_u32_u8(np1));  // 4,5,6,7 -> 1,3,5,7
 
     p32_0 ^= vshlq_n_u32(p32_1,16);
     p32_1 ^= vshrq_n_u32(p32_1,16);
@@ -169,14 +172,14 @@ void ibc_1_256( void *_poly , unsigned n_256bit )
 //////////
 
 //layer 16: [32] s4^1:(16,1) suggest unit:1
-    uint16x8_t t16_0 = vuzp1q_u16(np0,np1);
-    uint16x8_t t16_1 = vuzp2q_u16(np0,np1);
+    uint16x8_t t16_0 = vuzp1q_u16(vreinterpretq_u16_u8(np0),vreinterpretq_u16_u8(np1));
+    uint16x8_t t16_1 = vuzp2q_u16(vreinterpretq_u16_u8(np0),vreinterpretq_u16_u8(np1));
 
     t16_0 ^= vshlq_n_u16(t16_1,1);
     t16_1 ^= vshrq_n_u16(t16_1,15);
 
-    np0 = vreinterpretq_u8_u32(vzip1q_u16(t16_0,t16_1));
-    np1 = vreinterpretq_u8_u32(vzip2q_u16(t16_0,t16_1));
+    np0 = vreinterpretq_u8_u16(vzip1q_u16(t16_0,t16_1));
+    np1 = vreinterpretq_u8_u16(vzip2q_u16(t16_0,t16_1));
 
 //layer 15: [64] s4^2:(32,2) suggest unit:1
     uint32x4_t t32_0 = vuzp1q_u32(vreinterpretq_u32_u8(np0),vreinterpretq_u32_u8(np1));

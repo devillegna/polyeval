@@ -1,7 +1,7 @@
 
 
-CC ?= clang
-LD ?= clang
+CC = clang
+LD = clang
 
 LIB3NAME = fftbc
 LIB3PATH = ./bc
@@ -33,10 +33,6 @@ ifneq (,$(filter $(ARCH),arm64 aarch64))
 PROJ    = neon
 endif
 
-ifeq  ($(ARCH), aarch64)
-CFLAGS    +=  -flax-vector-conversions -march=native
-endif
-
 EXT_SRC_DIRS  =
 
 ifeq ($(PROJ),ref)
@@ -54,7 +50,11 @@ else ifeq ($(PROJ),neon)
 
 EXT_SRC_DIRS  += ./src/neon
 INCPATH      += -I./src/neon
-
+ifeq  ($(ARCH), aarch64)
+CFLAGS    +=  -flax-vector-conversions -march=armv8-a+crypto -mfpu=neon
+else
+CFLAGS    +=  -flax-vector-conversions -mcpu=apple-m1
+endif
 endif
 
 ifdef ASAN

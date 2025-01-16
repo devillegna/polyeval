@@ -1,6 +1,6 @@
 
-CC ?= clang
-LD ?= clang
+CC = clang
+LD = clang
 
 CFLAGS := -O3 -std=c11 -Wall -Wextra -Wpedantic -fno-omit-frame-pointer  #-Werror
 LDFLAGS  := $(LDFLAGS)
@@ -18,10 +18,6 @@ ARCH := $(shell uname -m)
 
 ifneq (,$(filter $(ARCH),arm64 aarch64))
 PROJ    = neon
-endif
-
-ifeq  ($(ARCH), aarch64)
-CFLAGS    +=  -flax-vector-conversions -march=native
 endif
 
 EXT_SRC_DIRS  =
@@ -47,7 +43,11 @@ else ifeq ($(PROJ),neon)
 
 EXT_SRC_DIRS  += ./src/neon
 INCPATH      += -I./src/neon
-
+ifeq  ($(ARCH), aarch64)
+CFLAGS    +=  -flax-vector-conversions -march=armv8-a+crypto -mfpu=neon
+else
+CFLAGS    +=  -flax-vector-conversions -mcpu=apple-m1
+endif
 endif
 
 
